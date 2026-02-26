@@ -13,3 +13,9 @@ body {
 .nav-color {
     background-color: #441144;
 }
+
+.map {
+    height: 100vh;
+    background: url("/world.jpg");
+    position: relative;
+}
