@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home - UI Prototype</title>
+    <title>Set Preferences - UI Prototype</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="icon" href="../icons/null.svg">
@@ -20,7 +20,8 @@
             <img src="../icons/null.svg" alt="Full or Null Icon">
             Full or Null
         </span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -71,10 +72,90 @@
     </div>
 </nav>
 
+<div class="m-3 col-9 mx-auto">
+    <span class="m-3 text-light fw-bold fs-1">Settings</span>
+</div>
+
+<div class="fluid-container">
+
+    <div class="m-3 col-8 mx-auto text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+        <div class="m-3">
+            <span class="fw-bold fs-3 border-bottom pe-3">Location Preferences</span>
+        </div>
+
+        <div class="row m-3">
+            <p class="m-0 fs-5">Distance Filter</p>
+            <p class="mb-3 fs-6">Decide the maximum distance for which a location may be selected</p>
+
+            <div>
+                <form>
+                    <label for="distance_range" class="form-label">Distance: </label>
+                    <input type="range" class="form-range" id="distance_range" min="1" max="100">
+                    <output for="distance_range" id="distance_output"></output>
+                </form>
+            </div>
+        </div>
+
+        <div class="row m-3">
+            <p class="m-0 fs-5">Desired Amenities</p>
+            <p class="mb-3 fs-6">Select your desired amenities in order of priority</p>
+
+            <div>
+                <ol class="list-group mb-2">
+                    <li class="list-group-item bg-dark text-white">
+                        <div class="row container-fluid">
+                            <span class="col-1">1. </span>
+
+                            <div class="col-5">Printer
+                            </div>
+
+                            <div class="col">
+                                <span class="row float-end">&uarr;</span>
+                                <span class="row float-end">&darr;</span>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="list-group-item bg-dark text-white">
+                        <div class="row container-fluid">
+                            <span class="col-1">2. </span>
+
+                            <div class="col-5">Vending Machine
+                            </div>
+
+                            <div class="col">
+                                <span class="row float-end">&uarr;</span>
+                                <span class="row float-end">&darr;</span>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+                <button class="mt-2 btn btn-primary">Add Amenity</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("distance_output").innerText =
+            document.getElementById("distance_range").value + " miles";
+
+        document.getElementById("distance_range").addEventListener("input", () => {
+            document.getElementById("distance_output").innerText =
+                document.getElementById("distance_range").value + " miles";
+        });
+    });
+
+</script>
+
 </body>
 
 </html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home - UI Prototype</title>
+    <title>Search Locations - UI Prototype</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="icon" href="../icons/null.svg">
@@ -20,7 +20,8 @@
             <img src="../icons/null.svg" alt="Full or Null Icon">
             Full or Null
         </span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -71,10 +72,155 @@
     </div>
 </nav>
 
+<div class="m-3 col-9 mx-auto">
+    <span class="m-3 text-light fw-bold fs-1">Search</span>
+</div>
+
+<div class="fluid-container">
+
+    <div class="col-8 row m-3 mx-auto">
+        <div class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Quick Search</span>
+            </div>
+
+            <div class="mb-3">
+                <span class="text-white fs-5">Suggest locations based off your current preferences</span>
+            </div>
+
+            <div class="mb-1">
+                <button class="btn btn-primary">Find Locations</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-8 row m-3 mx-auto">
+        <div class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Advanced Search</span>
+            </div>
+
+            <div class="mb-3">
+                <span class="text-white fs-5">
+                    Enable filters or modify your preferences to zero in on that perfect location
+                </span>
+            </div>
+
+            <div class="row">
+                <div class="col-7 mb-3">
+                    <div class="row m-3 ms-0">
+                        <form>
+                            <label for="distance_range" class="form-label">Distance: </label>
+                            <input type="range" class="form-range" id="distance_range" min="1" max="100">
+                            <output for="distance_range" id="distance_output"></output>
+                        </form>
+                    </div>
+
+                    <div class="row m-3">
+                        <ol class="list-group mb-2">
+                            <li class="list-group-item bg-dark text-white">
+                                <div class="row container-fluid">
+                                    <span class="col-1">1. </span>
+
+                                    <div class="col-5">Printer
+                                    </div>
+
+                                    <div class="col">
+                                        <span class="row float-end">&uarr;</span>
+                                        <span class="row float-end">&darr;</span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="list-group-item bg-dark text-white">
+                                <div class="row container-fluid">
+                                    <span class="col-1">2. </span>
+
+                                    <div class="col">Vending Machine
+                                    </div>
+
+                                    <div class="col">
+                                        <span class="row float-end">&uarr;</span>
+                                        <span class="row float-end">&darr;</span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                        <button class="col-5 mt-2 btn btn-primary">Add Amenity</button>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="mb-1">
+                <button class="btn btn-primary">Find Locations</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-8 row m-3 mx-auto">
+        <div class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Location Lookup</span>
+            </div>
+
+            <div class="mb-3">
+                <span class="text-white fs-5">View the current status of a location</span>
+            </div>
+
+            <form>
+                <div class="mb-3">
+                    <label class="form-label" for="location_search">Select a Location: </label>
+                    <input class="form-select form-dark border-0 bg-dark text-light" list="location_list" id="location_search">
+                    <datalist id="location_list">
+                        <option value="Phillips Library"></option>
+                        <option value="Birck Center"></option>
+                        <option value="Spartan Spot"></option>
+                    </datalist>
+                    <output class="m-3 fw-5" for="location_search" id="location_output"></output>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("distance_output").innerText =
+            document.getElementById("distance_range").value + " miles";
+
+        document.getElementById("distance_range").addEventListener("input", () => {
+            document.getElementById("distance_output").innerText =
+                document.getElementById("distance_range").value + " miles";
+        });
+
+        let locations = {
+            "Phillips Library" : ["quiet", "medium"],
+            "Birck Center" : ["mixed", "low"],
+            "Spartan Spot" : ["loud", "high"]
+        }
+
+        document.getElementById("location_search").addEventListener("input", () => {
+            let result = locations[document.getElementById("location_search").value];
+            let out = document.getElementById("location_output");
+            out.innerText = "";
+            out.innerText += "Noise: " + result[0] + "\n";
+            out.innerText += "Crowdedness: " + result[1] + "\n";
+        });
+    });
+</script>
+
 </body>
 
 </html>

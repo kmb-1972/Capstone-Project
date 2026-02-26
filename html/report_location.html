@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home - UI Prototype</title>
+    <title>Report Location - UI Prototype</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="icon" href="../icons/null.svg">
@@ -71,10 +71,164 @@
     </div>
 </nav>
 
+<div class="m-3 col-9 mx-auto">
+    <span class="m-3 text-light fw-bold fs-1">Reports</span>
+</div>
+
+<div class="fluid-container">
+
+    <div class="col-8 row m-3 mx-auto">
+        <form class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Current Status Form</span>
+            </div>
+
+            <div class="mb-3">
+                <span class="text-white fs-6">Report the current noise and crowdedness of a location</span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="location_select1">Select a Location: </label>
+                <input class="form-select form-dark border-0 bg-dark text-light" list="location_list1" id="location_select1">
+                <datalist id="location_list1">
+                    <option value="Phillips Library"></option>
+                    <option value="Birck Center"></option>
+                    <option value="Spartan Spot"></option>
+                </datalist>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="noise_select">How would you describe the current noise level:
+                </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="noise_select">
+                    <option value="" disabled selected hidden>&lt;select a noise level&gt;</option>
+                    <option value="1">Very Quiet</option>
+                    <option value="2">Somewhat Quiet</option>
+                    <option value="3">Mixed</option>
+                    <option value="4">Somewhat Loud</option>
+                    <option value="5">Very Loud</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="population_select">
+                    How many people are present (compared to maximum capacity):
+                </label>
+                <select class="form-control form-dark border-0 bg-dark text-light" id="population_select">
+                    <option value="" disabled selected hidden>&lt;select an estimate&gt;</option>
+                    <option value="1">&lt;20%</option>
+                    <option value="2">&gt;20% but &lt;40% </option>
+                    <option value="3">&gt;40% but &lt;60%</option>
+                    <option value="4">&gt;60% but &lt;80%</option>
+                    <option value="5">&gt;80%</option>
+                </select>
+            </div>
+
+            <div class="clearfix">
+                <button class="btn btn-success float-end" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-8 row m-3 mx-auto">
+        <form class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Location Overview</span>
+            </div>
+
+            <div class="mb-3">
+                <div>
+                    <span class="text-white fs-6">
+                        Report the presence of amenities, seating capacity, and other details of a
+                        location that are unlikely to change frequently
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="location_select2">Select a Location: </label>
+                <input class="form-select form-dark border-0 bg-dark text-light" list="location_list2" id="location_select2">
+                <datalist id="location_list2">
+                    <option value="Phillips Library"></option>
+                    <option value="Birck Center"></option>
+                    <option value="Spartan Spot"></option>
+                </datalist>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="info_type">Select the type of location information:
+                </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="info_type">
+                    <option value="" disabled selected hidden>&lt;select an option&gt;</option>
+                    <option value="a">Amenities</option>
+                    <option value="c">Capacity</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label id="amenity_select_label" class="form-label" for="amenity_select">Select the amenity present:
+                </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="amenity_select">
+                    <option value="" disabled selected hidden>&lt;select an amenity&gt;</option>
+                    <option value="printer">Printer</option>
+                    <option value="vending">Vending Machine</option>
+                    <option value="white_boards">White Boards</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label id="capacity_input_label" class="form-label" for="capacity_input">Input the seating capacity: </label>
+                <input class="form-select form-dark border-0 bg-dark text-light" id="capacity_input" type="number">
+            </div>
+
+            <div class="clearfix">
+                <button class="btn btn-success float-end" type="submit">Submit</button>
+            </div>
+        </form>
+
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("amenity_select").style.display = "none";
+        document.getElementById("amenity_select_label").style.display = "none"
+
+        document.getElementById("capacity_input").style.display = "none";
+        document.getElementById("capacity_input_label").style.display = "none"
+
+        document.getElementById("info_type").addEventListener("change", () => {
+            let selection = document.getElementById("info_type").value;
+
+            let amenity_select = document.getElementById("amenity_select");
+            amenity_select.style.display = "none";
+            let amenity_label = document.getElementById("amenity_select_label");
+            amenity_label.style.display = "none"
+
+            let capacity_input = document.getElementById("capacity_input");
+            capacity_input.style.display = "none";
+            let capacity_label = document.getElementById("capacity_input_label");
+            capacity_label.style.display = "none"
+
+            if (selection === "a") {
+                amenity_select.style.display = "block";
+                amenity_label.style.display = "block";
+            } else if (selection === "c") {
+                capacity_input.style.display = "block";
+                capacity_label.style.display = "block";
+            }
+        });
+
+
+    });
+</script>
 </body>
 
 </html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home - UI Prototype</title>
+    <title>Feedback - UI Prototype</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="icon" href="../icons/null.svg">
@@ -20,7 +20,8 @@
             <img src="../icons/null.svg" alt="Full or Null Icon">
             Full or Null
         </span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -71,6 +72,114 @@
     </div>
 </nav>
 
+<div class="m-3 col-9 mx-auto">
+    <span class="m-3 text-light fw-bold fs-1">Feedback</span>
+</div>
+
+<div class="fluid-container">
+
+    <div class="col-8 row m-3 mx-auto">
+        <form class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Data Accuracy</span>
+            </div>
+
+            <div class="mb-3">
+                <span class="text-white fs-6">Report the accuracy of recent suggestions</span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="report_select">Select a Previous Suggestion: </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="report_select">
+                    <option value="" disabled selected hidden>&lt;select an option&gt;</option>
+                    <option value="ex_1">Example Suggestion 1</option>
+                    <option value="ex_2">Example Suggestion 2</option>
+                    <option value="ex_3">Example Suggestion 3</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="rating_select">Select a Rating for the Suggestion's Accuracy (1 is least accurate):
+                </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="rating_select">
+                    <option value="" disabled selected hidden>&lt;select a rating&gt;</option>
+                    <option value="1">1/5</option>
+                    <option value="2">2/5</option>
+                    <option value="3">3/5</option>
+                    <option value="4">4/5</option>
+                    <option value="5">5/5</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="feedback_desc">Reason for Rating (optional): </label>
+                <textarea class="form-control form-dark border-0 bg-dark text-light" id="feedback_desc"></textarea>
+            </div>
+
+            <div class="clearfix">
+                <button class="btn btn-success float-end" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-8 row m-3 mx-auto">
+        <form class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Issue Report</span>
+            </div>
+
+            <div class="mb-3">
+                <div>
+                    <span class="text-white fs-6">
+                        If you have discovered any errors or unexpected events in our application, please report those here.
+                    </span>
+                </div>
+
+                <div>
+                    <span class="text-white fs-6">
+                        We greatly appreciate any opportunities our users provide us to improve.
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="category_select">Select a Category for Your Report: </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="category_select">
+                    <option value="" disabled selected hidden>&lt;select an option&gt;</option>
+                    <option value="ex_1">Example Issue 1</option>
+                    <option value="ex_2">Example Issue 2</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="severity_select">Please Indicate the Severity of Your Issue (1 is least severe):
+                </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="severity_select">
+                    <option value="" disabled selected hidden>&lt;select a rating&gt;</option>
+                    <option value="1">1/5</option>
+                    <option value="2">2/5</option>
+                    <option value="3">3/5</option>
+                    <option value="4">4/5</option>
+                    <option value="5">5/5</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="issue_desc">Description of the Issue: </label>
+                <textarea class="form-control form-dark border-0 bg-dark text-light" id="issue_desc"></textarea>
+            </div>
+
+            <div class="clearfix">
+                <button class="btn btn-success float-end" type="submit">Submit</button>
+            </div>
+        </form>
+
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home - UI Prototype</title>
+    <title>Register - UI Prototype</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="icon" href="../icons/null.svg">
@@ -20,7 +20,8 @@
             <img src="../icons/null.svg" alt="Full or Null Icon">
             Full or Null
         </span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -71,6 +72,49 @@
     </div>
 </nav>
 
+<div class="fluid-container">
+    <div class="row m-3">
+        <form class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+            <div class="mb-3">
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Register</span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="reg_email_input">Enter Email Address: </label>
+                <input class="form-control form-dark border-0 bg-dark text-light" id="reg_email_input" type="email">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="reg_password_input">Create Your Password: </label>
+                <input class="form-control form-dark border-0 bg-dark text-light" id="reg_password_input" type="password">
+            </div>
+
+            <div class="clearfix">
+                <a class="btn btn-success float-end" href="home.html">Register</a>
+            </div>
+        </form>
+
+        <form class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+            <div class="mb-3">
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Sign In</span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="sign_email_input">Enter Email Address: </label>
+                <input class="form-control form-dark border-0 bg-dark text-light" id="sign_email_input" type="email">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="sign_password_input">Create Your Password: </label>
+                <input class="form-control form-dark border-0 bg-dark text-light" id="sign_password_input" type="password">
+            </div>
+
+            <div class="clearfix">
+                <a class="btn btn-success float-end" href="home.html">Register</a>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
