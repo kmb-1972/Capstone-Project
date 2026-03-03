@@ -114,7 +114,7 @@
                     <div class="row m-3 ms-0">
                         <form>
                             <label for="distance_range" class="form-label">Distance: </label>
-                            <input type="range" class="form-range" id="distance_range" min="1" max="100">
+                            <input type="range" class="form-range" id="distance_range" min=".1" max="10" step=".1">
                             <output for="distance_range" id="distance_output"></output>
                         </form>
                     </div>
@@ -197,8 +197,8 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("distance_output").innerText =
-            document.getElementById("distance_range").value + " miles";
+        document.getElementById("distance_output").innerText = "5 miles"
+            document.getElementById("distance_range").value = 5;
 
         document.getElementById("distance_range").addEventListener("input", () => {
             document.getElementById("distance_output").innerText =

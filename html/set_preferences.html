@@ -73,7 +73,7 @@
 </nav>
 
 <div class="m-3 col-9 mx-auto">
-    <span class="m-3 text-light fw-bold fs-1">Settings</span>
+    <span class="m-3 text-light fw-bold fs-1">Preferences</span>
 </div>
 
 <div class="fluid-container">
@@ -91,7 +91,7 @@
             <div>
                 <form>
                     <label for="distance_range" class="form-label">Distance: </label>
-                    <input type="range" class="form-range" id="distance_range" min="1" max="100">
+                    <input type="range" class="form-range" id="distance_range" min=".1" max="10" step=".1">
                     <output for="distance_range" id="distance_output"></output>
                 </form>
             </div>
@@ -145,8 +145,8 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("distance_output").innerText =
-            document.getElementById("distance_range").value + " miles";
+        document.getElementById("distance_output").innerText = "5 miles";
+            document.getElementById("distance_range").value = 5;
 
         document.getElementById("distance_range").addEventListener("input", () => {
             document.getElementById("distance_output").innerText =
