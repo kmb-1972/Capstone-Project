@@ -50,8 +50,10 @@ async function createSchema() {
             (
                 255
             ) NOT NULL,
-                address TEXT
-                )
+                address TEXT,
+                building VARCHAR(255),
+                volatility_index DECIMAL(5,2) DEFAULT 0.0
+                ) 
         `);
 
         // 3. Amenity types table
@@ -90,7 +92,7 @@ async function createSchema() {
             (
                 amenity_type_id
             ),
-                is_available BOOLEAN DEFAULT TRUE,
+                available_count INTEGER DEFAULT 0,
                 last_verified TIMESTAMP DEFAULT NOW
             (
             )
@@ -188,11 +190,7 @@ async function createSchema() {
                 report_timestamp TIMESTAMP DEFAULT NOW
             (
             ),
-                confidence_score DECIMAL
-            (
-                5,
-                2
-            )
+                comments TEXT     
                 )
         `);
 
@@ -237,7 +235,6 @@ async function createSchema() {
                 timestamp TIMESTAMP DEFAULT NOW
             (
             ),
-                was_accepted BOOLEAN,
                 recommendation_score DECIMAL
             (
                 5,
