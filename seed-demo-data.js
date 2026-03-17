@@ -6,7 +6,6 @@ const pool = new Pool({
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
-    port: process.env.DB_PORT,
     ssl: { rejectUnauthorized: false }
 });
 
@@ -28,11 +27,11 @@ async function seedDemoData() {
         // CREATE TEST LOCATIONS
         console.log('Creating test locations...');
         await pool.query(`
-            INSERT INTO locations (location_id, name, address, volatility_index)
+            INSERT INTO locations (location_id, name, address, building, volatility_index)
             VALUES 
-                (1, 'Main Library', '123 Campus Drive - Always quiet', 0.8),
-                (2, 'Coffee Shop', '456 University Ave - Not enough data', 0.0),
-                (3, 'Student Union', '789 College Blvd - Old data only', 3.5)
+                (1, 'Main Library', '123 Campus Drive', 'Academic Building A', 0.8),
+                (2, 'Coffee Shop', '456 University Ave', 'Student Center', 0.0),
+                (3, 'Student Union', '789 College Blvd', 'Union Hall', 3.5)
             ON CONFLICT (location_id) DO UPDATE 
             SET name = EXCLUDED.name, address = EXCLUDED.address, volatility_index = EXCLUDED.volatility_index
         `);
@@ -51,9 +50,9 @@ async function seedDemoData() {
             const noiseLevel = Math.floor(Math.random() * 3) + 1;
 
             await pool.query(`
-                INSERT INTO user_reports (user_id, location_id, noise_level, crowd_level, report_timestamp, confidence_score)
+                INSERT INTO user_reports (user_id, location_id, noise_level, crowd_level, report_timestamp, comments)
                 VALUES ($1, $2, $3, $4, $5, $6)
-            `, [userId, 1, noiseLevel, 'low', timestamp, 85.5]);
+            `, [userId, 1, noiseLevel, 'low', timestamp, 'really quiet, good for studying']);
         }
         console.log('   15 reports (0-25 days old, noise level 1-3)\n');
 
@@ -69,9 +68,9 @@ async function seedDemoData() {
             const noiseLevel = Math.floor(Math.random() * 4) + 5;
 
             await pool.query(`
-                INSERT INTO user_reports (user_id, location_id, noise_level, crowd_level, report_timestamp, confidence_score)
+                INSERT INTO user_reports (user_id, location_id, noise_level, crowd_level, report_timestamp, comments)
                 VALUES ($1, $2, $3, $4, $5, $6)
-            `, [userId, 2, noiseLevel, 'medium', timestamp, 45.0]);
+            `, [userId, 2, noiseLevel, 'medium', timestamp, 'somewhat loud, some chatter']);
         }
         console.log('   Only 3 reports (need 10 minimum)\n');
 
@@ -87,9 +86,9 @@ async function seedDemoData() {
             const noiseLevel = Math.floor(Math.random() * 4) + 7;
 
             await pool.query(`
-                INSERT INTO user_reports (user_id, location_id, noise_level, crowd_level, report_timestamp, confidence_score)
+                INSERT INTO user_reports (user_id, location_id, noise_level, crowd_level, report_timestamp, comments)
                 VALUES ($1, $2, $3, $4, $5, $6)
-            `, [userId, 3, noiseLevel, 'high', timestamp, 30.0]);
+            `, [userId, 3, noiseLevel, 'high', timestamp, 'Very loud, hard to focus']);
         }
         console.log('   20 reports BUT all 365+ days old\n');
 
