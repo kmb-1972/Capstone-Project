@@ -226,6 +226,413 @@ app.get('/api/locations/:id', async (req, res) => {
     }
 });
 
+// AMENITY TYPE ENDPOINTS
+
+app.get('/api/amenity_types', async (req, res) => {
+   try {
+       const result = await pool.query(
+           'SELECT * FROM amenity_types'
+       );
+       res.json(result.rows);
+   }
+   catch (err) {
+       console.error('Error fetching amenity types: ', err);
+       res.status(500).json({error: 'Failed to fetch amenity types'});
+   }
+});
+
+app.get('/api/amenity_types/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await pool.query(
+            'SELECT * FROM amenity_types WHERE amenity_type_id = $1',
+            [id]
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching amenity type: ', err);
+        res.status(500).json({error: 'Failed to fetch amenity type'});
+    }
+});
+
+// LOCATION AMENITY ENDPOINTS
+
+app.get('/api/amenities', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM amenities'
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching amenities: ', err);
+        res.status(500).json({error: 'Failed to fetch amenities'});
+    }
+});
+
+// ID corresponds to location_id, showing all amenities for one location
+app.get('/api/amenities/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await pool.query(
+            'SELECT * FROM amenities WHERE location_id = $1',
+            [id]
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching amenities: ', err);
+        res.status(500).json({error: 'Failed to fetch amenities'});
+    }
+});
+
+app.post('/api/amenities', async (req, res) => {
+    try {
+        const {location_id, amenity_type_id, available_count} = req.body;
+
+        if (!location_id || !amenity_type_id) {
+            return res.status(400).json({error: 'Missing required fields'});
+        }
+
+        const location = await pool.query(
+            'SELECT name FROM locations WHERE location_id = $1',
+            [location_id]
+        );
+        if (location.rows.length === 0) {
+            return res.status(404).json({error: 'Location not found'});
+        }
+
+        const amenity = await pool.query(
+            'SELECT amenity_name FROM amenity_types WHERE amenity_type_id = $1',
+            [amenity_type_id]
+        )
+        if (amenity.rows.length === 0) {
+            return res.status(404).json({error: 'Amenity type not found'});
+        }
+
+        const location_amenity = await pool.query(`
+            SELECT amenity_id FROM amenities
+                WHERE location_id = $1 AND amenity_type_id = $2
+            `,
+            [location_id, amenity_type_id]
+        );
+        if (location_amenity.rows.length !== 0) {
+            return res.status(409).json({error: 'Amenity type already defined for location'});
+        }
+
+        const result = await pool.query(`
+            INSERT INTO amenities (location_id, amenity_type_id, available_count)
+            VALUES ($1, $2, $3)
+            RETURNING *
+            `,
+            [location_id, amenity_type_id, available_count || 0]
+        );
+        res.status(201).json({
+            message: 'Location amenity successfully posted',
+            location_amenity: result.rows[0]
+        });
+    }
+    catch (err) {
+        console.error('Error posting to location amenities: ', err);
+        res.status(500).json({error: 'Failed to post to location amenities'});
+    }
+});
+
+// USER PREFERENCES ENDPOINTS
+
+app.get('/api/user_preferences', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM user_preferences'
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching preferences: ', err);
+        res.status(500).json({error: 'Failed to fetch preferences'});
+    }
+});
+
+// ID corresponds to user_id, showing all preferences of a user
+app.get('/api/user_preferences/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await pool.query(
+            'SELECT * FROM user_preferences WHERE user_id = $1',
+            [id]
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching preferences: ', err);
+        res.status(500).json({error: 'Failed to fetch preferences'});
+    }
+});
+
+app.post('/api/user_preferences', async (req, res) => {
+    try {
+        const {user_id, noise_level, crowd_level} = req.body;
+
+        if (!user_id || !noise_level || !crowd_level) {
+            return res.status(400).json({error: 'Missing required fields'});
+        }
+
+        const user = await pool.query(
+            'SELECT user_id FROM users WHERE user_id = $1',
+            [user_id]
+        );
+        if (user.rows.length === 0) {
+            return res.status(404).json({error: 'User not found'});
+        }
+
+        if (noise_level < 1 || noise_level > 10) {
+            return res.status(400).json({error: 'Noise level must be between 1 and 10'});
+        }
+
+        // CONFIRM ABOUT ALLOW DUPLICATES
+        // const user_preference = await pool.query(`
+        //     SELECT user_id FROM user_preferences
+        //         WHERE user_id = $1 AND amenity_type_id = $2
+        //     `,
+        //     [location_id, amenity_type_id]
+        // );
+        // if (location_amenity.rows.length !== 0) {
+        //     return res.status(409).json({error: 'Amenity type already defined for location'});
+        // }
+
+        const result = await pool.query(`
+            INSERT INTO user_preferences (user_id, noise_level, crowd_level)
+            VALUES ($1, $2, $3)
+            RETURNING *
+            `,
+            [user_id, noise_level, crowd_level]
+        );
+        res.status(201).json({
+            message: 'User preferences successfully posted',
+            user_preferences: result.rows[0]
+        });
+    }
+    catch (err) {
+        console.error('Error posting user preferences: ', err);
+        res.status(500).json({error: 'Failed to post user preferences'});
+    }
+});
+
+// USER REQUIRED AMENITIES ENDPOINTS
+
+app.get('/api/user_required_amenities', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM user_required_amenities'
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching user amenities: ', err);
+        res.status(500).json({error: 'Failed to fetch user amenities'});
+    }
+});
+
+// ID corresponds to user_preferred_id, showing required amenities
+app.get('/api/user_required_amenities/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await pool.query(
+            'SELECT * FROM user_required_amenities WHERE user_id = $1',
+            [id]
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching user amenities: ', err);
+        res.status(500).json({error: 'Failed to fetch user amenities'});
+    }
+});
+
+app.post('/api/user_required_amenities', async (req, res) => {
+    try {
+        const {amenity_type_id, priority} = req.body;
+
+        if (!amenity_type_id || !priority) {
+            return res.status(400).json({error: 'Missing required fields'});
+        }
+
+        const amenity_type = await pool.query(
+            'SELECT amenity_name FROM amenity_types WHERE amenity_type_id = $1',
+            [amenity_type_id]
+        );
+        if (amenity_type.rows.length === 0) {
+            return res.status(404).json({error: 'Amenity type not found'});
+        }
+
+        // CONFIRM ABOUT ALLOW DUPLICATES
+        // const user_amenities = await pool.query(`
+        //     SELECT user_preferred_id FROM user_required_amenities
+        //         WHERE user_preferred_id = $1 AND amenity_type_id = $2
+        //     `,
+        //     [user_id, amenity_type_id]
+        // );
+        // if (user_amenities.rows.length !== 0) {
+        //     return res.status(409).json({error: 'Required amenities already defined for user'});
+        // }
+
+        const result = await pool.query(`
+            INSERT INTO user_required_amenities (amenity_type_id, priority)
+            VALUES ($1, $2)
+            RETURNING *
+            `,
+            [user_id, priority]
+        );
+        res.status(201).json({
+            message: 'User required amenities successfully posted',
+            user_required_amenities: result.rows[0]
+        });
+    }
+    catch (err) {
+        console.error('Error posting user required amenities: ', err);
+        res.status(500).json({error: 'Failed to post user required amenities'});
+    }
+});
+
+// RECOMMENDATION ENDPOINTS
+
+app.get('/api/recommendations', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM recommendations'
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching recommendations: ', err);
+        res.status(500).json({error: 'Failed to fetch recommendations'});
+    }
+});
+
+// ID corresponds to user_id, showing all recommendations for a user
+app.get('/api/recommendations/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await pool.query(
+            'SELECT * FROM recommendations WHERE user_id = $1',
+            [id]
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching recommendations: ', err);
+        res.status(500).json({error: 'Failed to fetch recommendations'});
+    }
+});
+
+app.post('/api/recommendations', async (req, res) => {
+    try {
+        const {user_id, location_id, recommendation_score} = req.body;
+
+        if (!user_id || !location_id || !recommendation_score) {
+            return res.status(400).json({error: 'Missing required fields'});
+        }
+
+        const user = await pool.query(
+            'SELECT user_id FROM users WHERE user_id = $1',
+            [user_id]
+        );
+        if (user.rows.length === 0) {
+            return res.status(404).json({error: 'User not found'});
+        }
+
+        const location = await pool.query(
+            'SELECT name FROM locations WHERE location_id = $1',
+            [location_id]
+        );
+        if (location.rows.length === 0) {
+            return res.status(404).json({error: 'Location not found'});
+        }
+
+        const result = await pool.query(`
+            INSERT INTO recommendations (user_id, location_id, recommendation_score)
+            VALUES ($1, $2, $3)
+            RETURNING *
+            `,
+            [user_id, location_id, recommendation_score]
+        );
+        res.status(201).json({
+            message: 'Recommendation successfully posted',
+            recommendation: result.rows[0]
+        });
+    }
+    catch (err) {
+        console.error('Error posting recommendation: ', err);
+        res.status(500).json({error: 'Failed to post recommendation'});
+    }
+});
+
+// LOCATION STATE ENDPOINTS
+
+app.get('/api/location_states', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM location_states'
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching location states: ', err);
+        res.status(500).json({error: 'Failed to fetch location states'});
+    }
+});
+
+app.get('/api/location_states/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await pool.query(
+            'SELECT * FROM location_states WHERE location_id = $1',
+            [id]
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching location state by id: ', err);
+        res.status(500).json({error: 'Failed to fetch location state by id'});
+    }
+});
+
+app.post('/api/location_states', async (req, res) => {
+    try {
+        const {location_id, time_window, avg_noise_level, avg_crowd_level, report_count, confidence_level} = req.body;
+
+        if (!location_id || !time_window || !avg_noise_level || !avg_crowd_level || !report_count || !confidence_level) {
+            return res.status(400).json({error: 'Missing required fields'});
+        }
+
+        const location = await pool.query(
+            'SELECT name FROM locations WHERE location_id = $1',
+            [location_id]
+        );
+        if (location.rows.length === 0) {
+            return res.status(404).json({error: 'Location not found'});
+        }
+
+        const result = await pool.query(`
+            INSERT INTO location_states
+                (location_id, time_window, avg_noise_level, avg_crowd_level, report_count, confidence_level)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *
+            `,
+            [location_id, time_window, avg_noise_level, avg_crowd_level, report_count, confidence_level]
+        );
+        res.status(201).json({
+            message: 'Location state successfully posted',
+            location_state: result.rows[0]
+        });
+    }
+    catch (err) {
+        console.error('Error posting location state: ', err);
+        res.status(500).json({error: 'Failed to post location state'});
+    }
+});
+
 // TIME RELEVANCY FEATURE
 
 app.get('/api/locations/:id/data-sufficiency', async (req, res) => {
