@@ -15,9 +15,9 @@ const REPORT_WINDOW = 90;
 const MIN_REPORTS = 2;
 
 const NOISE = {
-    QUIET: {max: 3, label: 'quiet'},
-    MIXED: {max: 6, label: 'mixed'},
-    LOUD: {min: 7, label: 'loud'}
+    LOW: {max: 3.5, label: 'low'},
+    MEDIUM: {max: 6, label: 'medium'},
+    HIGH: {min: 7, label: 'high'}
 };
 
 const CONFIDENCE = {
@@ -35,9 +35,9 @@ const STALE_LOW_CONFIDENCE_DAYS = 60; // > 60 days we should show a low confiden
 
 
 function noiseLevel(level) {
-    if (level <= NOISE.QUIET.max) return NOISE.QUIET.label;
-    if (level <= NOISE.MIXED.max) return NOISE.MIXED.label;
-    return NOISE.LOUD.label;
+    if (level <= NOISE.LOW.max) return NOISE.LOW.label;
+    if (level <= NOISE.MEDIUM.max) return NOISE.MEDIUM.label;
+    return NOISE.HIGH.label;
 }
 
 function getTimeWindow(date = new Date()) {
@@ -48,8 +48,9 @@ function getTimeWindow(date = new Date()) {
     return 'night';
 }
 
-function getTimeRelevancy(lastUpdated) {
-    if(!lastUpdated) {
+function getTimeRelevancy(reportTimestamps){
+
+    if(!reportTimestamps || reportTimestamps.length === 0 ){
         return{
             status: 'No data',
             disclaimer: 'No data available for this location',
@@ -57,35 +58,50 @@ function getTimeRelevancy(lastUpdated) {
         };
     }
     const MS_PER_DAY = 86400000;
-    const daySince = (Date.now() - new Date(lastUpdated)) / MS_PER_DAY;
-    if (daySince <= STALE_DISCLAIMER_DAYS) {
-        return{
+    const now = Date.now();
+
+    let weightedSum =0;
+    let totalWeight = 0;
+
+    reportTimestamps.forEach((timestamp, index)=> {
+        const weight = index + 1;
+        const daysOld = (now - new Date(timestamp)) / MS_PER_DAY;
+        weightedSum += daysOld * weight;
+        totalWeight += weight;
+    });
+
+    const weightedAvgDays = weightedSum / totalWeight;
+    if(weightedAvgDays <= STALE_DISCLAIMER_DAYS){
+        return {
             status: 'fresh data',
             disclaimer: null,
             confidence: 1.0,
-            daySince: Math.round(daySince)
+            avgDaysOld: Math.round(weightedAvgDays)
         };
     }
-    if(daySince <= STALE_LOW_CONFIDENCE_DAYS) {
-        return{
-            status: 'more than 1 month old data',
-            disclaimer: `Data is ${Math.round(daySince)} days old, conditions may have changed since`,
-            confidence: 0.6,
-            daySince: Math.round(daySince),
-        };
-    }
-    return{
-        status: 'outdated',
-        disclaimer: `Low confidence, data is ${Math.round(daySince)} days old, proceed w care`,
-        confidence: 0.3,
-        daySince: Math.round(daySince),
-    };
+        if(weightedAvgDays <= STALE_LOW_CONFIDENCE_DAYS){
+            return{
+                status: 'more than 1 month old data',
+                disclaimer: `Data is on average ${Math.round(weightedAvgDays)} days old, conditions may have changed`,
+                confidence: 0.6,
+                avgDaysOld: Math.round(weightedAvgDays)
+            };
+        }
+        return {
+            staus: 'outdated',
+            disclaimer: `low confidence, data is on average ${Math.round(weightedAvgDays)} days old`,
+            confidence: 0.3,
+            avgDaysOld: Math.round(weightedAvgDays),
+        }
+
 }
+
 
 async function processingVolatileAttributes(locationId) {
     const result = await pool.query(`
         SELECT AVG(noise_level)::DECIMAL(5,2) AS avg_noise, MODE() WITHIN GROUP (ORDER BY crowd_level) AS avg_crowd,
-    COUNT(*) AS report_count
+    COUNT(*) AS report_count,
+        ARRAY_AGG(report_timestamp ORDER BY report_timestamp ASC) AS timestamps
         FROM user_reports
         WHERE location_id=$1
           AND report_timestamp >= NOW() - INTERVAL '${REPORT_WINDOW} minutes'
@@ -101,7 +117,16 @@ async function processingVolatileAttributes(locationId) {
         `, [locationId]);
 
         const lastUpdated = historicalDataResult.rows[0]?.last_updated ?? null;
-        const timeRelevancy = getTimeRelevancy(lastUpdated);
+        // const timeRelevancy = getTimeRelevancy(lastUpdated);
+        const historicalTimestampsResult = await pool.query(`
+        SELECT report_timestamp 
+        FROM user_reports
+        WHERE location_id=$1
+        ORDER BY report_timestamp ASC
+        `, [locationId]);
+        const historicalTimeStamps = historicalTimestampsResult.rows.map(r => r.report_timestamp);
+        const timeRelevancy = getTimeRelevancy(historicalTimeStamps);
+
         return {
             updated: false,
             reason: `Only ${reportCount} recent report(s) - need at least ${MIN_REPORTS}`, reportCount,
@@ -132,12 +157,12 @@ async function processingVolatileAttributes(locationId) {
             confidence_level = EXCLUDED.confidence_level
     `, [locationId, timeWindow, avgNoise, crowdLevel, reportCount, confidenceScore]);
 
-    const timeRelevancy = getTimeRelevancy(new Date());
+    const timeRelevancy = getTimeRelevancy(result.rows[0].timestamps);
     return {
         updated: true,
         reportCount: reportCount,
         noise: avgNoise,
-        noiseLabel : noiseLevel(parseFloat(avgNoise)),
+        noiseLabel : `${avgNoise} - ${noiseLevel(parseFloat(avgNoise))}`,
         crowd: crowdLevel,
         timeWindow,
         confidenceScore,
@@ -206,6 +231,7 @@ async function processStableAttributes(locationId) {
             reason: `Was outdated(${timeAgoLabel}), re-verified`
         })
     }
+
     return {
         locationId: locationId,
         updates: updates
@@ -214,13 +240,10 @@ async function processStableAttributes(locationId) {
 
 async function resolveConflict (locationId) {
     const result = await pool.query(`
-    SELECT noise_level, 
-    report_timestamp,
-    GREATEST(0.1, 1.0 - (EXTRACT(EPOCH FROM(NOW() - report_timestamp))/5400))::
-    DECIMAL(5,2) AS recency_weight
+    SELECT noise_level, report_timestamp
     FROM user_reports
     WHERE location_id=$1
-    AND report_timestamp >= NOW() - INTERVAL '${REPORT_WINDOW} minutes'
+    AND report_timestamp>=  NOW() - INTERVAL '${REPORT_WINDOW} minutes'
     AND noise_level IS NOT NULL
     ORDER BY report_timestamp DESC 
     `, [locationId]);
@@ -229,35 +252,33 @@ async function resolveConflict (locationId) {
         return{locationId, conflict:false, reason: 'No recent reports'};
     }
     const noiseLevels = result.rows.map(r => r.noise_level);
-    const min = Math.min(...noiseLevels);
-    const max = Math.max(...noiseLevels);
-    const spread = max - min;
-    if(spread <5){
-        return {conflict: false, message: 'Reports are consistent'};
-    }
-    let weightSum = 0;
-    let totalWeight = 0;
-    for(const row of result.rows) {
-        weightSum += row.noise_level * parseFloat(row.recency_weight);
-        totalWeight += parseFloat(row.recency_weight);
-    }
-    const resolvedNoise = (weightSum / totalWeight).toFixed(2);
+
+    const sorted=[...noiseLevels].sort((a,b)=> a -b);
+
+    const percentile50 = Math.floor(sorted.length * 0.50);
+    const percentile95 = Math.floor(sorted.length * 0.95);
+    const median = sorted[percentile50];
+    const percent95 = sorted[percentile95];
+
+
     return{
         locationId,
-        conflict: true,
-         spread,
-        rawMin: min,
-        rawMax: max,
-        resolvedNoise: parseFloat(resolvedNoise),
-        resolvedLabel : noiseLevel(parseFloat(resolvedNoise)),
-        strategy: 'recency-weighted average',
-        reportCount: result.rows.length
-    };
+        reportCount: result.rows.length,
+        median,
+        percent95,
+        noiseLabel: noiseLevel(percent95),
+        strategy: 'percentile based',
+        interpretation: `The 95th percentile noise level is ${percent95}, labeled as ${noiseLevel(percent95)}`,
+    }
 }
 
 async function analyzeLocation (locationId) {
-    const[volatileResult, stableResult, conflictResult] = await Promise.all([
-      processingVolatileAttributes(locationId),processStableAttributes(locationId),resolveConflict(locationId)
+    const[volatileResult,
+        // stableResult,
+        conflictResult] = await Promise.all([
+      processingVolatileAttributes(locationId),
+        // processStableAttributes(locationId),
+        resolveConflict(locationId)
     ]);
 
     return {
@@ -272,7 +293,7 @@ async function analyzeLocation (locationId) {
         }),
         timeWindow: getTimeWindow(),
         volatileAttributes: volatileResult,
-        stableAttributes: stableResult,
+        // stableAttributes: stableResult,
         conflictResolution: conflictResult
     }
 }
