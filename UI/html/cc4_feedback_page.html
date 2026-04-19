@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Post-Visit Report - UI Prototype</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="icon" href="../icons/null.svg">
+    <link rel="stylesheet" href="../UI_prototype.css">
+    <style>
+        body { background-color: #552255; }
+        .nav-color { background-color: #441144; }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg nav-color" data-bs-theme="dark">
+    <div class="container-fluid">
+        <span class="navbar-brand">
+            <img src="../icons/null.svg" alt="Full or Null Icon">
+            Full or Null
+        </span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mb-2 mb-lg-0 row">
+                <li class="nav-item col text-center">
+                    <a class="nav-link" aria-current="page" href="home.html">Home
+                        <img class="navbar-brand" src="../icons/home.svg" alt="Home Icon">
+                    </a>
+                </li>
+                <li class="nav-item col text-center">
+                    <a class="nav-link" href="register.html">Register or Sign In
+                        <img class="navbar-brand" src="../icons/sign_in.svg" alt="Sign In Icon">
+                    </a>
+                </li>
+                <li class="nav-item col text-center">
+                    <a class="nav-link" href="search_locations.html">Search for Study Locations
+                        <img class="navbar-brand" src="../icons/study_location.svg" alt="Study Location Icon">
+                    </a>
+                </li>
+                <li class="nav-item col text-center">
+                    <a class="nav-link" href="set_preferences.html">Set Up Preferences
+                        <img class="navbar-brand" src="../icons/preferences.svg" alt="Preferences Icon">
+                    </a>
+                </li>
+                <li class="nav-item col text-center">
+                    <a class="nav-link" href="report_location.html">Report Location Status
+                        <img class="navbar-brand" src="../icons/report.svg" alt="Report Icon">
+                    </a>
+                </li>
+                <li class="nav-item col text-center">
+                    <a class="nav-link active" href="feedback.html">Feedback
+                        <img class="navbar-brand" src="../icons/feedback.svg" alt="Feedback Icon">
+                    </a>
+                </li>
+                <li class="nav-item col text-center">
+                    <a class="nav-link" href="settings.html">Settings
+                        <img class="navbar-brand" src="../icons/settings_gear.svg" alt="Gear Icon">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="m-3 col-9 mx-auto">
+    <span class="m-3 text-light fw-bold fs-1">Post-Visit Report</span>
+</div>
+
+<div class="fluid-container">
+
+    <div class="col-8 row m-3 mx-auto">
+        <form id="cc4-form" class="col mx-2 p-3 text-light border border-3 border-black rounded-start rounded-top rounded-4">
+
+            <div>
+                <span class="text-white fw-bold fs-3 border-bottom pe-3">Post-Visit Report</span>
+            </div>
+
+            <div class="mb-3">
+                <span class="text-white fs-6">Let us know if our reported noise and crowd levels matched what you experienced.</span>
+            </div>
+
+            <!-- ── Question 1: Noise Level ─────────────────────────────── -->
+            <div class="mb-3">
+                <label class="form-label" for="noise_select">Was our reported noise level accurate? <span id="noise-reported-badge" class="text-secondary"></span></label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="noise_select"
+                        onchange="setAccuracy('noise', this.value)">
+                    <option value="" disabled selected hidden>&lt;select an answer&gt;</option>
+                    <option value="yes">Yes, it was accurate</option>
+                    <option value="no">No, it was different</option>
+                </select>
+            </div>
+
+            <div class="mb-3" id="noise-correction" style="display: none;">
+                <label class="form-label" for="noise_slider">
+                    What was the actual noise level?
+                    (<span id="noise-num">5</span>/10 — <span id="noise-level-badge">MEDIUM</span>)
+                </label>
+                <input type="range" class="form-range" id="noise_slider"
+                       min="1" max="10" step="1" value="5"
+                       oninput="updateSlider('noise', this.value)">
+                <div class="d-flex justify-content-between">
+                    <small class="text-secondary">1 — Very Quiet</small>
+                    <small class="text-secondary">10 — Very Loud</small>
+                </div>
+            </div>
+
+            <!-- ── Question 2: Crowd Level ─────────────────────────────── -->
+            <div class="mb-3">
+                <label class="form-label" for="crowd_select">Was our reported crowd level accurate? <span id="crowd-reported-badge" class="text-secondary"></span></label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="crowd_select"
+                        onchange="setAccuracy('crowd', this.value)">
+                    <option value="" disabled selected hidden>&lt;select an answer&gt;</option>
+                    <option value="yes">Yes, it was accurate</option>
+                    <option value="no">No, it was different</option>
+                </select>
+            </div>
+
+            <div class="mb-3" id="crowd-correction" style="display: none;">
+                <label class="form-label" for="crowd_slider">
+                    What was the actual crowd level?
+                    (<span id="crowd-num">3</span>/10 — <span id="crowd-level-badge">LOW</span>)
+                </label>
+                <input type="range" class="form-range" id="crowd_slider"
+                       min="1" max="10" step="1" value="3"
+                       oninput="updateSlider('crowd', this.value)">
+                <div class="d-flex justify-content-between">
+                    <small class="text-secondary">1 — Empty</small>
+                    <small class="text-secondary">10 — Packed</small>
+                </div>
+            </div>
+
+            <!-- Error message -->
+            <div id="form-error" class="alert alert-danger py-2" style="display:none;">
+                Please answer both questions before submitting.
+            </div>
+
+            <!-- Success message -->
+            <div id="form-success" class="alert alert-success py-2" style="display:none;">
+                Report submitted — thanks for helping keep our data accurate!
+            </div>
+
+            <div class="clearfix">
+                <button class="btn btn-success float-end" type="button" onclick="submitReport()">Submit</button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+
+<script>
+    // ── State ─────────────────────────────────────────────────────────
+    var state = {
+        noiseAccurate: null,
+        crowdAccurate: null,
+        noiseCorrected: 5,
+        crowdCorrected: 3,
+        reportedNoise: 5,
+        reportedCrowd: 3
+    };
+
+    // ── Helpers ───────────────────────────────────────────────────────
+    function toLabel(val) {
+        if (val <= 3.5) return 'LOW';
+        if (val <= 6)   return 'MEDIUM';
+        return 'HIGH';
+    }
+
+    // ── Accuracy select ───────────────────────────────────────────────
+    function setAccuracy(field, value) {
+        var accurate = (value === 'yes');
+        state[field + 'Accurate'] = accurate;
+        document.getElementById(field + '-correction').style.display = accurate ? 'none' : 'block';
+        if (!accurate) {
+            var currentVal = document.getElementById(field + '_slider').value;
+            updateSlider(field, currentVal);
+        }
+    }
+
+    // ── Slider update ─────────────────────────────────────────────────
+    function updateSlider(field, val) {
+        val = Number(val);
+        state[field + 'Corrected'] = val;
+        document.getElementById(field + '-num').textContent = val;
+        document.getElementById(field + '-level-badge').textContent = toLabel(val);
+    }
+
+    // ── Submit ────────────────────────────────────────────────────────
+    function submitReport() {
+        document.getElementById('form-error').style.display   = 'none';
+        document.getElementById('form-success').style.display = 'none';
+
+        if (state.noiseAccurate === null || state.crowdAccurate === null) {
+            document.getElementById('form-error').textContent = 'Please answer both questions before submitting.';
+            document.getElementById('form-error').style.display = 'block';
+            return;
+        }
+
+        var checkinId = new URLSearchParams(window.location.search).get('checkinId');
+        if (!checkinId) {
+            document.getElementById('form-error').textContent = 'No check-in ID found. Please check out first.';
+            document.getElementById('form-error').style.display = 'block';
+            return;
+        }
+
+        var token = localStorage.getItem('accessToken');
+        if (!token) {
+            document.getElementById('form-error').textContent = 'You must be logged in to submit feedback.';
+            document.getElementById('form-error').style.display = 'block';
+            return;
+        }
+
+        var payload = {
+            noiseAccurate:  state.noiseAccurate,
+            noiseCorrected: state.noiseAccurate ? null : state.noiseCorrected,
+            crowdAccurate:  state.crowdAccurate,
+            crowdCorrected: state.crowdAccurate ? null : state.crowdCorrected
+        };
+
+        fetch('/api/followup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+        .then(function(result) {
+            if (!result.ok) {
+                document.getElementById('form-error').textContent = result.data.error || 'Submission failed. Please try again.';
+                document.getElementById('form-error').style.display = 'block';
+                return;
+            }
+            document.getElementById('form-success').style.display = 'block';
+            document.getElementById('cc4-form').querySelectorAll('button, select, input').forEach(function(el) {
+                el.disabled = true;
+            });
+        })
+        .catch(function() {
+            document.getElementById('form-error').textContent = 'Network error. Please try again.';
+            document.getElementById('form-error').style.display = 'block';
+        });
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+        var params = new URLSearchParams(window.location.search);
+        if (!params.get('checkinId')) {
+            document.getElementById('form-error').textContent = 'No check-in ID found. Please check out first.';
+            document.getElementById('form-error').style.display = 'block';
+            document.querySelector('.btn-success').disabled = true;
+        }
+
+        document.getElementById('noise-reported-badge').textContent = '(Reported: ' + toLabel(state.reportedNoise) + ')';
+        document.getElementById('crowd-reported-badge').textContent = '(Reported: ' + toLabel(state.reportedCrowd) + ')';
+    });
+</script>
+
+</body>
+</html>
