@@ -18,11 +18,11 @@ async function seedDemoData() {
         return new Date(Date.now() - days * 24*60*60*1000);
     }
     try {
-        console.log('Seeding demo data for time relevancy feature...\n');
+        // console.log('Seeding demo data for time relevancy feature...\n');
 
 
         // CREATE TEST USER
-        console.log('Creating test user...');
+        // console.log('Creating test user...');
         const userResult = await pool.query(`
             INSERT INTO users (email, password_hash, created_at)
             VALUES ('demo@studyspots.com', 'hashed_password_demo', NOW()) ON CONFLICT (email) DO
@@ -30,10 +30,10 @@ async function seedDemoData() {
                 RETURNING user_id
         `);
         const userId = userResult.rows[0].user_id;
-        console.log(`User created (ID: ${userId})\n`);
+        // console.log(`User created (ID: ${userId})\n`);
 
         // CREATE TEST LOCATIONS
-        console.log('Creating test locations...');
+        // console.log('Creating test locations...');
         await pool.query(`
             INSERT INTO locations (location_id, name, address, building, volatility_index)
             VALUES (1, 'Main Library', '123 Campus Drive', 'Academic Building A', 0.8),
@@ -43,9 +43,9 @@ async function seedDemoData() {
                 SET name = EXCLUDED.name, address = EXCLUDED.address,building = EXCLUDED.building, volatility_index = EXCLUDED.volatility_index
         `);
 
-        console.log('3 locations created\n');
+        // console.log('3 locations created\n');
 // amenity types
-        console.log('seeding amenity types...');
+//         console.log('seeding amenity types...');
         await pool.query(`TRUNCATE amenities RESTART IDENTITY`)
         await pool.query(`DELETE
                           FROM amenity_types`);
@@ -70,10 +70,10 @@ async function seedDemoData() {
                     SET amenity_name = EXCLUDED.amenity_name
             `, [a.id, a.name, a.description,]);
         }
-        console.log('10 amenity types created\n');
+        // console.log('10 amenity types created\n');
 
 //Amenities, count per location
-        console.log('seeding amenities...');
+//         console.log('seeding amenities...');
 
         await pool.query(`DELETE
                           FROM amenities`)
@@ -133,21 +133,30 @@ async function seedDemoData() {
            `, [a.locationId, a.typeId, a.count, daysAgo(90)]);
        }
 
-        console.log('Amenities seeded for all 3 locations');
+        // console.log('Amenities seeded for all 3 locations');
 
         //User reports
-        console.log('seeding user reports...');
+        // console.log('seeding user reports...');
         await pool.query(`DELETE FROM user_reports`);
 
 
         const libraryReports = [
-            {noise: 1, crowd: 'low', time: minutesAgo(60), comment: 'Super quiet, perfect for studying'},
-            {noise: 2, crowd: 'low', time: minutesAgo(60), comment: 'Few people here'},
-            {noise: 1, crowd: 'low', time: minutesAgo(60), comment: 'A very quiet morning'},
-            {noise: 4, crowd: 'low', time: minutesAgo(30), comment: 'Good spots in the morning'},
-            {noise: 6, crowd: 'medium', time: minutesAgo(20), comment: 'A bit busy after lunch time'},
-            {noise: 6, crowd: 'medium', time: minutesAgo(15), comment: 'A bit busy but still workable'},
-            {noise: 8, crowd: 'high', time: minutesAgo(10), comment: 'Group studying happening'},
+            { noise: 1, crowd: 'low',    time: minutesAgo(80), comment: 'Super quiet' },
+            { noise: 2, crowd: 'low',    time: minutesAgo(75), comment: 'Very quiet' },
+            { noise: 1, crowd: 'low',    time: minutesAgo(70), comment: 'Empty, silent' },
+            { noise: 2, crowd: 'low',    time: minutesAgo(65), comment: 'Barely anyone' },
+            { noise: 3, crowd: 'low',    time: minutesAgo(60), comment: 'Pretty quiet' },
+            { noise: 2, crowd: 'low',    time: minutesAgo(55), comment: 'Quiet morning' },
+            { noise: 3, crowd: 'low',    time: minutesAgo(50), comment: 'Good for focus' },
+            { noise: 2, crowd: 'low',    time: minutesAgo(45), comment: 'Nice and calm' },
+            { noise: 4, crowd: 'medium', time: minutesAgo(40), comment: 'Getting busier' },
+            { noise: 3, crowd: 'low',    time: minutesAgo(35), comment: 'Still manageable' },
+            { noise: 5, crowd: 'medium', time: minutesAgo(30), comment: 'Some chatter' },
+            { noise: 4, crowd: 'medium', time: minutesAgo(25), comment: 'Moderate noise' },
+            { noise: 6, crowd: 'medium', time: minutesAgo(20), comment: 'Getting louder' },
+            { noise: 4, crowd: 'medium', time: minutesAgo(15), comment: 'a little busy' },
+            { noise: 2, crowd: 'low',   time: minutesAgo(10), comment: 'quiet' },
+            { noise: 5, crowd: 'medium',   time: minutesAgo(5),  comment: 'a little busy' },
         ];
 
         const coffeeReports = [
@@ -173,11 +182,11 @@ async function seedDemoData() {
             VALUES($1, $2, $3, $4, $5,$6)
             `, [userId, r.locationId, r.noise, r.crowd, r.time, r.comment]);
         }
-        console.log('demo data is seeded successfully');
-
-        console.log("seeding historical location states");
+        // console.log('demo data is seeded successfully');
+        //
+        // console.log("seeding historical location states");
         await pool.query(`INSERT INTO location_states
-        (location_id, time_window, avg_noise_level,avg_crowd_level,report_count, last_updated, confidence_level)
+        (location_id, time_window, avg_noise_level,avg_crowd_level,report_count, last_updated, report_confidence)
         VALUES (2, 'Afternoon', 7.00, 'high', 4, $1, 0.80),
                (3,'Afternoon', 8.00, 'high', 3, $2, 0.60)
                ON CONFLICT(location_id, time_window)
@@ -186,9 +195,9 @@ DO UPDATE SET
             avg_crowd_level = EXCLUDED.avg_crowd_level,
             report_count = EXCLUDED.report_count,
             last_updated = EXCLUDED.last_updated,
-            confidence_level = EXCLUDED.confidence_level
+            report_confidence = EXCLUDED.report_confidence
 `, [daysAgo(45), daysAgo(90)]);
-        console.log("historical location states seeded successfully");
+        // console.log("historical location states seeded successfully");
 
     }catch (error){
         console.log('Error seeding data:', error);
