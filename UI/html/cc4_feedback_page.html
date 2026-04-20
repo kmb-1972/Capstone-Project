@@ -86,59 +86,34 @@
                 <span class="text-white fs-6">Let us know if our reported noise and crowd levels matched what you experienced.</span>
             </div>
 
-            <!-- ── Question 1: Noise Level ─────────────────────────────── -->
+            <!-- ── Noise Level ─────────────────────────────────────────── -->
             <div class="mb-3">
-                <label class="form-label" for="noise_select">Was our reported noise level accurate? <span id="noise-reported-badge" class="text-secondary"></span></label>
-                <select class="form-select form-dark border-0 bg-dark text-light" id="noise_select"
-                        onchange="setAccuracy('noise', this.value)">
-                    <option value="" disabled selected hidden>&lt;select an answer&gt;</option>
-                    <option value="yes">Yes, it was accurate</option>
-                    <option value="no">No, it was different</option>
-                </select>
-            </div>
-
-            <div class="mb-3" id="noise-correction" style="display: none;">
                 <label class="form-label" for="noise_slider">
-                    What was the actual noise level?
-                    (<span id="noise-num">5</span>/10 — <span id="noise-level-badge">MEDIUM</span>)
+                    Current Noise Level: <span id="noise-num">5</span>/10
                 </label>
                 <input type="range" class="form-range" id="noise_slider"
                        min="1" max="10" step="1" value="5"
-                       oninput="updateSlider('noise', this.value)">
+                       oninput="document.getElementById('noise-num').textContent = this.value">
                 <div class="d-flex justify-content-between">
                     <small class="text-secondary">1 — Very Quiet</small>
                     <small class="text-secondary">10 — Very Loud</small>
                 </div>
             </div>
 
-            <!-- ── Question 2: Crowd Level ─────────────────────────────── -->
+            <!-- ── Crowd Level ─────────────────────────────────────────── -->
             <div class="mb-3">
-                <label class="form-label" for="crowd_select">Was our reported crowd level accurate? <span id="crowd-reported-badge" class="text-secondary"></span></label>
-                <select class="form-select form-dark border-0 bg-dark text-light" id="crowd_select"
-                        onchange="setAccuracy('crowd', this.value)">
-                    <option value="" disabled selected hidden>&lt;select an answer&gt;</option>
-                    <option value="yes">Yes, it was accurate</option>
-                    <option value="no">No, it was different</option>
+                <label class="form-label" for="crowd_select">Current Crowd Level: </label>
+                <select class="form-select form-dark border-0 bg-dark text-light" id="crowd_select">
+                    <option value="" disabled selected hidden>&lt;select a crowd level&gt;</option>
+                    <option value="low">Low</option>
+                    <option value="med">Medium</option>
+                    <option value="high">High</option>
                 </select>
-            </div>
-
-            <div class="mb-3" id="crowd-correction" style="display: none;">
-                <label class="form-label" for="crowd_slider">
-                    What was the actual crowd level?
-                    (<span id="crowd-num">3</span>/10 — <span id="crowd-level-badge">LOW</span>)
-                </label>
-                <input type="range" class="form-range" id="crowd_slider"
-                       min="1" max="10" step="1" value="3"
-                       oninput="updateSlider('crowd', this.value)">
-                <div class="d-flex justify-content-between">
-                    <small class="text-secondary">1 — Empty</small>
-                    <small class="text-secondary">10 — Packed</small>
-                </div>
             </div>
 
             <!-- Error message -->
             <div id="form-error" class="alert alert-danger py-2" style="display:none;">
-                Please answer both questions before submitting.
+                Please select a crowd level before submitting.
             </div>
 
             <!-- Success message -->
@@ -160,111 +135,61 @@
         crossorigin="anonymous"></script>
 
 <script>
-    // ── State ─────────────────────────────────────────────────────────
-    var state = {
-        noiseAccurate: null,
-        crowdAccurate: null,
-        noiseCorrected: 5,
-        crowdCorrected: 3,
-        reportedNoise: 5,
-        reportedCrowd: 3
-    };
-
-    // ── Helpers ───────────────────────────────────────────────────────
-    function toLabel(val) {
-        if (val <= 3.5) return 'LOW';
-        if (val <= 6)   return 'MEDIUM';
-        return 'HIGH';
-    }
-
-    // ── Accuracy select ───────────────────────────────────────────────
-    function setAccuracy(field, value) {
-        var accurate = (value === 'yes');
-        state[field + 'Accurate'] = accurate;
-        document.getElementById(field + '-correction').style.display = accurate ? 'none' : 'block';
-        if (!accurate) {
-            var currentVal = document.getElementById(field + '_slider').value;
-            updateSlider(field, currentVal);
-        }
-    }
-
-    // ── Slider update ─────────────────────────────────────────────────
-    function updateSlider(field, val) {
-        val = Number(val);
-        state[field + 'Corrected'] = val;
-        document.getElementById(field + '-num').textContent = val;
-        document.getElementById(field + '-level-badge').textContent = toLabel(val);
-    }
-
     // ── Submit ────────────────────────────────────────────────────────
     function submitReport() {
         document.getElementById('form-error').style.display   = 'none';
         document.getElementById('form-success').style.display = 'none';
 
-        if (state.noiseAccurate === null || state.crowdAccurate === null) {
-            document.getElementById('form-error').textContent = 'Please answer both questions before submitting.';
+        var crowdVal = document.getElementById('crowd_select').value;
+        if (!crowdVal) {
+            document.getElementById('form-error').textContent = 'Please select a crowd level before submitting.';
             document.getElementById('form-error').style.display = 'block';
             return;
         }
 
-        var checkinId = new URLSearchParams(window.location.search).get('checkinId');
-        if (!checkinId) {
-            document.getElementById('form-error').textContent = 'No check-in ID found. Please check out first.';
-            document.getElementById('form-error').style.display = 'block';
-            return;
-        }
-
-        var token = localStorage.getItem('accessToken');
-        if (!token) {
-            document.getElementById('form-error').textContent = 'You must be logged in to submit feedback.';
+        var recId = new URLSearchParams(window.location.search).get('rec');
+        if (!recId) {
+            document.getElementById('form-error').textContent = 'No recommendation ID found. Please check out first.';
             document.getElementById('form-error').style.display = 'block';
             return;
         }
 
         var payload = {
-            noiseAccurate:  state.noiseAccurate,
-            noiseCorrected: state.noiseAccurate ? null : state.noiseCorrected,
-            crowdAccurate:  state.crowdAccurate,
-            crowdCorrected: state.crowdAccurate ? null : state.crowdCorrected
+            recommendation_id: recId,
+            curr_noise_level:  Number(document.getElementById('noise_slider').value),
+            curr_crowd_level:  crowdVal
         };
 
         fetch('/api/followup', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
-        .then(function(result) {
-            if (!result.ok) {
-                document.getElementById('form-error').textContent = result.data.error || 'Submission failed. Please try again.';
+            .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+            .then(function(result) {
+                if (!result.ok) {
+                    document.getElementById('form-error').textContent = result.data.error || 'Submission failed. Please try again.';
+                    document.getElementById('form-error').style.display = 'block';
+                    return;
+                }
+                document.getElementById('form-success').style.display = 'block';
+                document.getElementById('cc4-form').querySelectorAll('button, select, input').forEach(function(el) {
+                    el.disabled = true;
+                });
+            })
+            .catch(function() {
+                document.getElementById('form-error').textContent = 'Network error. Please try again.';
                 document.getElementById('form-error').style.display = 'block';
-                return;
-            }
-            document.getElementById('form-success').style.display = 'block';
-            document.getElementById('cc4-form').querySelectorAll('button, select, input').forEach(function(el) {
-                el.disabled = true;
             });
-        })
-        .catch(function() {
-            document.getElementById('form-error').textContent = 'Network error. Please try again.';
-            document.getElementById('form-error').style.display = 'block';
-        });
     }
 
     // ── Init ──────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
-        var params = new URLSearchParams(window.location.search);
-        if (!params.get('checkinId')) {
-            document.getElementById('form-error').textContent = 'No check-in ID found. Please check out first.';
+        if (!new URLSearchParams(window.location.search).get('rec')) {
+            document.getElementById('form-error').textContent = 'No recommendation ID found. Please check out first.';
             document.getElementById('form-error').style.display = 'block';
             document.querySelector('.btn-success').disabled = true;
         }
-
-        document.getElementById('noise-reported-badge').textContent = '(Reported: ' + toLabel(state.reportedNoise) + ')';
-        document.getElementById('crowd-reported-badge').textContent = '(Reported: ' + toLabel(state.reportedCrowd) + ')';
     });
 </script>
 

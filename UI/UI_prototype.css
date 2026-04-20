@@ -16,6 +16,6 @@ body {
 
 .map {
     height: 100vh;
-    background: url("/world.jpg");
+    background: url("./world.jpg");
     position: relative;
 }
