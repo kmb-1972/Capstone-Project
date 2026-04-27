@@ -316,5 +316,9 @@ async function runDemo(){
         await pool.end();
     }
 }
-runDemo();
+if (require.main === module) {
+    runDemo();
+}
+
+module.exports = { processingVolatileAttributes };
 
