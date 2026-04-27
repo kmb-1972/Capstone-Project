@@ -48,10 +48,10 @@ function getTimeWindow(date = new Date()) {
     return 'night';
 }
 
-function getTimeRelevancy(reportTimestamps){
+function getTimeRelevancy(reportTimestamps) {
 
-    if(!reportTimestamps || reportTimestamps.length === 0 ){
-        return{
+    if (!reportTimestamps || reportTimestamps.length === 0) {
+        return {
             status: 'No data',
             disclaimer: 'No data available for this location',
             freshnessConfidence: 0.0
@@ -63,7 +63,7 @@ function getTimeRelevancy(reportTimestamps){
     let weightedSum = 0;
     let totalWeight = 0;
 
-    reportTimestamps.forEach((timestamp, index)=> {
+    reportTimestamps.forEach((timestamp, index) => {
         const weight = index + 1;
         const daysOld = (now - new Date(timestamp)) / MS_PER_DAY;
         weightedSum += daysOld * weight;
@@ -71,7 +71,7 @@ function getTimeRelevancy(reportTimestamps){
     });
 
     const weightedAvgDays = weightedSum / totalWeight;
-    if(weightedAvgDays <= STALE_DISCLAIMER_DAYS){
+    if (weightedAvgDays <= STALE_DISCLAIMER_DAYS) {
         return {
             status: 'fresh data',
             disclaimer: null,
@@ -79,25 +79,25 @@ function getTimeRelevancy(reportTimestamps){
             avgDaysOld: Math.round(weightedAvgDays)
         };
     }
-        if(weightedAvgDays <= STALE_LOW_CONFIDENCE_DAYS){
-            return{
-                status: 'more than 1 month old data',
-                disclaimer: `Data is on average ${Math.round(weightedAvgDays)} days old, conditions may have changed`,
-                freshnessConfidence: 0.6,
-                avgDaysOld: Math.round(weightedAvgDays)
-            };
-        }
+    if (weightedAvgDays <= STALE_LOW_CONFIDENCE_DAYS) {
         return {
-            status: 'outdated',
-            disclaimer: `low confidence, data is on average ${Math.round(weightedAvgDays)} days old`,
-            freshnessConfidence: 0.3,
-            avgDaysOld: Math.round(weightedAvgDays),
-        }
+            status: 'more than 1 month old data',
+            disclaimer: `Data is on average ${Math.round(weightedAvgDays)} days old, conditions may have changed`,
+            freshnessConfidence: 0.6,
+            avgDaysOld: Math.round(weightedAvgDays)
+        };
+    }
+    return {
+        status: 'outdated',
+        disclaimer: `low confidence, data is on average ${Math.round(weightedAvgDays)} days old`,
+        freshnessConfidence: 0.3,
+        avgDaysOld: Math.round(weightedAvgDays),
+    }
 
 }
 
 
-async function processingVolatileAttributes(locationId) {
+async function processingVolatileAttributes(locationId, conflictNoiseLabel = null) {
     const result = await pool.query(`
         SELECT AVG(noise_level)::DECIMAL(5,2) AS avg_noise, MODE() WITHIN GROUP (ORDER BY crowd_level) AS avg_crowd,
     COUNT(*) AS report_count,
@@ -112,16 +112,18 @@ async function processingVolatileAttributes(locationId) {
     const reportCount = parseInt(result.rows[0].report_count);
     if (reportCount < MIN_REPORTS) {
         const historicalDataResult = await pool.query(`
-        SELECT avg_noise_level, avg_crowd_level, report_confidence, last_updated FROM location_states WHERE location_id=$1
-        ORDER BY last_updated DESC LIMIT 1
+            SELECT avg_noise_level, avg_crowd_level, report_confidence, last_updated
+            FROM location_states
+            WHERE location_id = $1
+            ORDER BY last_updated DESC LIMIT 1
         `, [locationId]);
 
         const lastUpdated = historicalDataResult.rows[0]?.last_updated ?? null;
         const historicalTimestampsResult = await pool.query(`
-        SELECT report_timestamp 
-        FROM user_reports
-        WHERE location_id=$1
-        ORDER BY report_timestamp ASC
+            SELECT report_timestamp
+            FROM user_reports
+            WHERE location_id = $1
+            ORDER BY report_timestamp ASC
         `, [locationId]);
         const historicalTimeStamps = historicalTimestampsResult.rows.map(r => r.report_timestamp);
         const timeRelevancy = getTimeRelevancy(historicalTimeStamps);
@@ -129,7 +131,7 @@ async function processingVolatileAttributes(locationId) {
         return {
             updated: false,
             reason: `Only ${reportCount} recent report(s) - need at least ${MIN_REPORTS}`, reportCount,
-            historicalData: historicalDataResult.rows[0]? {
+            historicalData: historicalDataResult.rows[0] ? {
                 noise: parseFloat(historicalDataResult.rows[0].avg_noise_level).toFixed(1),
                 crowd: historicalDataResult.rows[0].avg_crowd_level,
                 reportConfidence: parseFloat(historicalDataResult.rows[0].report_confidence)
@@ -146,22 +148,24 @@ async function processingVolatileAttributes(locationId) {
 
     await pool.query(`
         INSERT INTO location_states(location_id, time_window, avg_noise_level, avg_crowd_level, report_count,
-                                    last_updated, report_confidence)
-        VALUES ($1, $2, $3, $4, $5, NOW(), $6) ON CONFLICT (location_id,time_window)
-    DO UPDATE SET
+                                    last_updated, report_confidence, conflict_noise_label)
+        VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7) ON CONFLICT (location_id, time_window)
+        DO
+        UPDATE SET
             avg_noise_level = EXCLUDED.avg_noise_level,
             avg_crowd_level = EXCLUDED.avg_crowd_level,
             report_count = EXCLUDED.report_count,
             last_updated = NOW(),
-            report_confidence = EXCLUDED.report_confidence
-    `, [locationId, timeWindow, avgNoise, crowdLevel, reportCount, reportConfidence]);
+            report_confidence = EXCLUDED.report_confidence,
+            conflict_noise_label = EXCLUDED.conflict_noise_label
+    `, [locationId, timeWindow, avgNoise, crowdLevel, reportCount, reportConfidence, conflictNoiseLabel]);
 
     const timeRelevancy = getTimeRelevancy(result.rows[0].timestamps);
     return {
         updated: true,
         reportCount: reportCount,
         noise: avgNoise,
-        noiseLabel : `${avgNoise} - ${noiseLevel(parseFloat(avgNoise))}`,
+        noiseLabel: `${avgNoise} - ${noiseLevel(parseFloat(avgNoise))}`,
         crowd: crowdLevel,
         timeWindow,
         reportConfidence,
@@ -186,7 +190,7 @@ async function processStableAttributes(locationId) {
         const hoursSinceLastUpdated = (Date.now() - new Date(amenity.last_verified)) / 36e5;
         const isStale = Math.abs(hoursSinceLastUpdated) > AMENITY_EXPIRED_CONFIRMATION;
         const hoursAbs = Math.abs(hoursSinceLastUpdated);
-        const timeAgoLabel = hoursAbs >= 24 ? `${Math.round(hoursAbs/24)} days ago`:
+        const timeAgoLabel = hoursAbs >= 24 ? `${Math.round(hoursAbs / 24)} days ago` :
             `${hoursAbs.toFixed(1)}h ago`;
 
         if (!isStale) {
@@ -237,22 +241,22 @@ async function processStableAttributes(locationId) {
     }
 }
 
-async function resolveConflict (locationId) {
+async function resolveConflict(locationId) {
     const result = await pool.query(`
-    SELECT noise_level, report_timestamp
-    FROM user_reports
-    WHERE location_id=$1
-    AND report_timestamp>=  NOW() - INTERVAL '${REPORT_WINDOW} minutes'
-    AND noise_level IS NOT NULL
-    ORDER BY report_timestamp DESC 
+        SELECT noise_level, report_timestamp
+        FROM user_reports
+        WHERE location_id = $1
+          AND report_timestamp >= NOW() - INTERVAL '${REPORT_WINDOW} minutes'
+          AND noise_level IS NOT NULL
+        ORDER BY report_timestamp DESC
     `, [locationId]);
 
-    if(result.rows.length === 0){
-        return{locationId, conflict:false, reason: 'No recent reports'};
+    if (result.rows.length === 0) {
+        return {locationId, conflict: false, reason: 'No recent reports'};
     }
     const noiseLevels = result.rows.map(r => r.noise_level);
 
-    const sorted=[...noiseLevels].sort((a,b)=> a -b);
+    const sorted = [...noiseLevels].sort((a, b) => a - b);
 
     const percentile50 = Math.floor(sorted.length * 0.50);
     const percentile95 = Math.floor(sorted.length * 0.95);
@@ -260,7 +264,7 @@ async function resolveConflict (locationId) {
     const percent95 = sorted[percentile95];
 
 
-    return{
+    return {
         locationId,
         reportCount: result.rows.length,
         median,
@@ -271,24 +275,24 @@ async function resolveConflict (locationId) {
     }
 }
 
-async function analyzeLocation (locationId) {
-    const[volatileResult,
-        stableResult,
-        conflictResult] = await Promise.all([
-      processingVolatileAttributes(locationId),
+async function analyzeLocation(locationId) {
+    const conflictResult = await resolveConflict(locationId);
+    const conflictNoiseLabel = conflictResult.noiseLabel || null;
+    const [volatileResult,
+        stableResult] = await Promise.all([
+        processingVolatileAttributes(locationId, conflictNoiseLabel),
         processStableAttributes(locationId),
-        resolveConflict(locationId)
     ]);
 
     return {
         locationId,
-        analyzedAt: new Date().toLocaleDateString('en-US',{
-            month:'long',
-            day:'numeric',
-            year:'numeric',
-            hour:'numeric',
-            minute:'2-digit',
-            hour12:true
+        analyzedAt: new Date().toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
         }),
         timeWindow: getTimeWindow(),
         volatileAttributes: volatileResult,
@@ -297,7 +301,7 @@ async function analyzeLocation (locationId) {
     }
 }
 
-async function runDemo(){
+async function runDemo() {
     try {
         const locations = await pool.query(
             'SELECT location_id, name ' +
@@ -310,15 +314,16 @@ async function runDemo(){
             allResults.push({locationName: loc.name, ...result});
         }
         console.log(JSON.stringify(allResults, null, 2));
-    }catch(error){
+    } catch (error) {
         console.error("Analysis failed", error);
-    }finally {
+    } finally {
         await pool.end();
     }
 }
+
 if (require.main === module) {
     runDemo();
 }
 
-module.exports = { processingVolatileAttributes };
+module.exports = {processingVolatileAttributes};
 
