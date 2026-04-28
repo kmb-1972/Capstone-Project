@@ -144,12 +144,12 @@ async function processingVolatileAttributes(locationId, conflictNoiseLabel = nul
     const crowdLevel = row.avg_crowd;
     const timeWindow = getTimeWindow();
     const reportConfidence = Math.min(1.0, reportCount / 5).toFixed(2);
-
+    const timeRelevancy = getTimeRelevancy(result.rows[0].timestamps);
 
     await pool.query(`
         INSERT INTO location_states(location_id, time_window, avg_noise_level, avg_crowd_level, report_count,
-                                    last_updated, report_confidence, conflict_noise_label)
-        VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7) ON CONFLICT (location_id, time_window)
+                                    last_updated, report_confidence, conflict_noise_label, freshness_confidence)
+        VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7, $8) ON CONFLICT (location_id, time_window)
         DO
         UPDATE SET
             avg_noise_level = EXCLUDED.avg_noise_level,
@@ -157,10 +157,10 @@ async function processingVolatileAttributes(locationId, conflictNoiseLabel = nul
             report_count = EXCLUDED.report_count,
             last_updated = NOW(),
             report_confidence = EXCLUDED.report_confidence,
-            conflict_noise_label = EXCLUDED.conflict_noise_label
-    `, [locationId, timeWindow, avgNoise, crowdLevel, reportCount, reportConfidence, conflictNoiseLabel]);
+            conflict_noise_label = EXCLUDED.conflict_noise_label,
+            freshness_confidence = EXCLUDED.freshness_confidence
+    `, [locationId, timeWindow, avgNoise, crowdLevel, reportCount, reportConfidence, conflictNoiseLabel, timeRelevancy.freshnessConfidence]);
 
-    const timeRelevancy = getTimeRelevancy(result.rows[0].timestamps);
     return {
         updated: true,
         reportCount: reportCount,
