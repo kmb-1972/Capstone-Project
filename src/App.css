@@ -1,0 +1,348 @@
+body {
+    background-color: #d4edda;
+    font-family: 'Roboto', sans-serif;
+}
+.nav-color {
+    background-color: #6b8f71;
+    font-family: 'Abril Fatface', serif;
+    color: #F5F5DC;
+}
+
+.nav-color .nav-link {
+    color: #F5F5DC;;
+}
+
+.nav-color .navbar-brand {
+    color: #F5F5DC;
+!important;
+}
+
+.homeBackground {
+    padding-bottom:15%;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center
+
+}
+.welcome-bubble {
+    font-family: 'Abril Fatface', serif;
+    margin-top:20px;
+    color: black;
+
+}
+
+.chooseOne {
+    font-family: 'Abril Fatface', serif;
+}
+
+.create-bubble {
+    font-family: 'Abril Fatface', serif;
+
+}
+
+.logIn-card {
+    background-color: #b2d8b2;
+    color: black;
+
+}
+
+.logIn-card input {
+    background-color: #b2d8b2;
+    color: black;
+}
+
+
+
+.logIn-card ::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    color: black;
+}
+
+.signUp-card {
+    background-color: #b2d8b2;
+    color: black;
+
+}
+
+.signUp-card input {
+    background-color: #b2d8b2;
+    color: black;
+}
+
+.signUp-card ::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    color: black;
+}
+
+{/* home page css*/}
+.home-Content{
+    max-width: 700px;
+}
+.bubble {
+    font-family: 'Abril Fatface', serif;
+    margin-top: 80px;
+
+}
+
+.home-text {
+    font-family: 'Roboto', sans-serif;
+}
+
+{/* dashboard css*/}
+.dashBoard-hi{
+    font-family: 'Abril Fatface', serif;
+    color: #C8C8A0 ;
+    font-size: 50px;
+}
+.searchButton{
+    background-color: #8FBF8F;
+    color: white;
+}
+.firstCardText{
+    color: black;
+}
+.nearYou{
+    font-family: 'Abril Fatface', serif;
+    color:#C8C8A0;
+    font-size: 30px;
+}
+
+.firstCard{
+    font-family: 'Abril Fatface', serif;
+    /*background-color: #C8C8A0;*/
+    background-color:  #b2d8b2;
+    color: black;
+}
+.locationReportedCard{
+    font-family: 'Roboto', sans-serif;
+    background-color: #8FBF8F;
+
+    color: black;
+}
+.locationText{
+    color: black;
+}
+.reportName{
+    color: black;
+}
+.locationGroup{
+    background-color:#b2d8b2;
+}
+{/* locations css*/}
+.locationsText{
+    font-family: 'Roboto', sans-serif;
+
+}
+.preferencesCard{
+    font-family: 'Roboto', sans-serif;
+
+    background-color: #b2d8b2;
+
+    color: black;
+}
+
+{/*User preferences*/}
+.text{
+    font-family: 'Abril Fatface', serif;
+}
+.crowdLevelCard{
+    font-family: 'Roboto', sans-serif;
+    color:black;
+    background-color:#b2d8b2;
+}
+.noiseLevelCard {
+    font-family: 'Roboto', sans-serif;
+
+    color: black;
+    background-color: #b2d8b2;
+}
+.locationCardName{
+    padding: 0.75rem !important;
+    font-size: 0.9rem;
+    background-color: #b2d8b2;
+    font-family: 'Roboto', sans-serif;
+    color: black;
+}
+.locationCardName .card-title {
+    font-family: 'Abril Fatface', serif;
+
+    font-size: 1rem !important;
+    margin-bottom: 0.3rem !important;
+}
+
+/*.locationCardName .badge {*/
+/*    font-size: 0.75rem;*/
+/*}*/
+
+/*.locationCardName .btn {*/
+/*    padding: 0.3rem 0.5rem;*/
+/*    font-size: 0.85rem;*/
+/*}*/
+
+
+/*{reports modal css}*/
+
+.report-modal-card {
+    background-color: #b2d8b2;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.report-modal-title {
+    font-family: 'Abril Fatface', serif;
+    color: #2e4d33;
+    font-size: 1.4rem;
+}
+
+.report-modal-subtitle {
+    font-family: 'Roboto', sans-serif;
+    color: #3a5c3f;
+}
+
+.report-modal-label {
+    font-family: 'Roboto', sans-serif;
+    color: #2e4d33;
+    font-weight: bold;
+}
+
+.report-modal-hint {
+    color: #3a5c3f;
+    font-size: 0.85rem;
+}
+
+.report-modal-select {
+    background-color: #b2d8b2;
+    color: #2e4d33;
+    font-family: 'Roboto', sans-serif;
+    border: none;
+}
+
+.report-modal-textarea {
+    background-color: rgba(107, 143, 113, 0.2);
+    color: #2e4d33;
+    font-family: 'Roboto', sans-serif;
+    border: none;
+}
+
+.report-modal-textarea::placeholder {
+    color: #3a5c3f;
+}
+
+.report-amenity-btn {
+    background-color: rgba(107, 143, 113, 0.2);
+    color: #2e4d33;
+    border: 1px solid #6b8f71;
+    font-family: 'Roboto', sans-serif;
+    border-radius: 100px;
+}
+
+.report-amenity-btn.selected {
+    background-color: #6b8f71;
+    color: white;
+}
+
+.report-btn-skip {
+    background-color: rgba(107, 143, 113, 0.3);
+    color: #2e4d33;
+    font-family: 'Roboto', sans-serif;
+}
+
+.report-btn-submit {
+    background-color: #6b8f71;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
+
+
+
+.amenitiesText{
+    font-family: 'Abril Fatface', serif;
+}
+.amenityBadges{
+    background-color: saddlebrown;
+}
+
+{/*Featured cards home*/}
+.features-section {
+    background-color: #a8cca8;
+    border-top: 2px solid #6b8f71;
+}
+
+.features-heading {
+    font-family: 'Abril Fatface', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #3a5c3f;
+    letter-spacing: -0.01em;
+}
+
+.features-subheading {
+    color: #5a7a5f;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.05rem;
+}
+
+.feature-card {
+    background-color: #b2d8b2;
+    border: 1px solid #8FBF8F;
+    border-radius: 20px;
+    padding: 2.2rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(107, 143, 113, 0.3);
+}
+
+.feature-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background-color: #6b8f71;
+    margin-bottom: 1.2rem;
+}
+
+.feature-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.feature-title {
+    font-family: 'Abril Fatface', serif;
+    font-size: 1.25rem;
+    color: #2e4d33;
+    margin-bottom: 0.65rem;
+}
+
+.feature-desc {
+    font-family: 'Roboto', sans-serif;
+    color: #3a3a3a;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 1.4rem;
+}
+
+.feature-bar {
+    height: 3px;
+    width: 40px;
+    border-radius: 99px;
+    opacity: 0.8;
+    background-color: #6b8f71 !important;
+}
+
+
+{/* reports css*/}
+
+{/* feedback css*/}
+
+{/* settings css*/}
