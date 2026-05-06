@@ -1,0 +1,208 @@
+### Health Check
+GET http://18.191.166.24:3000/api/health
+
+###
+
+### Database Test
+GET http://18.191.166.24:3000/api/test
+
+###
+
+### Get All Locations
+GET http://18.191.166.24:3000/api/locations
+
+###
+
+### Get Single Location
+GET http://18.191.166.24:3000/api/locations/1
+
+###
+
+
+# =====================
+# AUTH
+# =====================
+
+### Register
+POST http://18.191.166.24:3000/api/register
+Content-Type: application/json
+
+{
+  "email": "test@studyspots.com",
+  "password": "password123"
+}
+
+###
+
+### Login
+POST http://18.191.166.24:3000/api/login
+Content-Type: application/json
+
+{
+  "email": "test@studyspots.com",
+  "password": "password123"
+}
+
+###
+
+### Refresh Access Token (paste refresh token from login)
+POST http://18.191.166.24:3000/api/token
+Content-Type: application/json
+
+{
+  "token": "PASTE_REFRESH_TOKEN_HERE"
+}
+
+###
+
+### Logout (invalidates refresh token)
+DELETE http://18.191.166.24:3000/api/logout
+Content-Type: application/json
+
+{
+  "token": "PASTE_REFRESH_TOKEN_HERE"
+}
+
+###
+
+
+# =====================
+# CC-2 PREFERENCE MATCHING
+# =====================
+
+### CC-2 Happy Path - Low noise + Wifi + Seating + Outlets
+POST http://18.191.166.24:3000/api/locations/search
+Content-Type: application/json
+
+{
+  "noise_preference": "low",
+  "amenities": ["Wifi", "Seating", "Outlets"]
+}
+
+###
+
+### CC-2 Happy Path - High noise + Coffee + Food
+POST http://18.191.166.24:3000/api/locations/search
+Content-Type: application/json
+
+{
+  "noise_preference": "high",
+  "amenities": ["Coffee", "Food"]
+}
+
+###
+
+### CC-2 Happy Path - Medium noise
+POST http://18.191.166.24:3000/api/locations/search
+Content-Type: application/json
+
+{
+  "noise_preference": "medium",
+  "amenities": ["Wifi"]
+}
+
+###
+
+### CC-2 Edge Case - No matching locations
+POST http://18.191.166.24:3000/api/locations/search
+Content-Type: application/json
+
+{
+  "noise_preference": "low",
+  "amenities": ["Food", "Drinks"]
+}
+
+###
+
+### CC-2 Error - Missing noise_preference
+POST http://18.191.166.24:3000/api/locations/search
+Content-Type: application/json
+
+{}
+
+###
+
+
+# =====================
+# CHECK-IN / CHECK-OUT
+# =====================
+
+### Check In
+POST http://18.191.166.24:3000/api/checkin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxNywiZW1haWwiOiJ0ZXN0QHN0dWR5c3BvdHMuY29tIiwiaWF0IjoxNzc2ODAwODA4LCJleHAiOjE3NzY4MDE3MDh9.YePPDds_DbD6gneil4mJbDLTv1JChWl4HHTcuIKHJN8
+Content-Type: application/json
+
+{
+  "location_id": 1
+}
+
+###
+
+### Check Out
+POST http://18.191.166.24:3000/api/checkout
+Authorization: Bearer PASTE_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{}
+
+###
+
+### Check In Status
+GET http://18.191.166.24:3000/api/checkin/status
+Authorization: Bearer PASTE_ACCESS_TOKEN_HERE
+
+###
+
+### Check In History
+GET http://18.191.166.24:3000/api/checkin/history
+Authorization: Bearer PASTE_ACCESS_TOKEN_HERE
+
+###
+
+
+# =====================
+# REPORTS
+# =====================
+
+### Submit Report (protected - uses user_id from token)
+POST http://18.191.166.24:3000/api/reports
+Authorization: Bearer PASTE_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "location_id": 1,
+  "noise_level": 3,
+  "crowd_level": "low"
+}
+
+###
+
+### View Reports for Location 1 (last 7 days)
+GET http://18.191.166.24:3000/api/locations/1/reports?days=7
+
+###
+
+### View Reports for Location 1 (default 365 days)
+GET http://18.191.166.24:3000/api/locations/1/reports
+
+###
+
+
+# =====================
+# DATA SUFFICIENCY
+# =====================
+
+### SCENARIO 1: Location 1 - PASS (sufficient recent data)
+GET http://18.191.166.24:3000/api/locations/1/data-sufficiency
+
+###
+
+### SCENARIO 2: Location 2 - FAIL (insufficient data)
+GET http://18.191.166.24:3000/api/locations/2/data-sufficiency
+
+###
+
+### SCENARIO 3: Location 3 - FAIL (stale data)
+GET http://18.191.166.24:3000/api/locations/3/data-sufficiency
+
+###
