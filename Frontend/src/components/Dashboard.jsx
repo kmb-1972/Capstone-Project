@@ -23,7 +23,7 @@ export default function Dashboard() {
     const userName = localStorage.getItem('userName') || 'there';
     const [locations, setLocations] = useState([]);
     const [locationStates, setLocationStates] = useState([]);
-    const[checkinStatus, setCheckinStatus] = useState(null);
+    const[setCheckinStatus] = useState(null);
     const[loading, setLoading] = useState(true);
 
 
