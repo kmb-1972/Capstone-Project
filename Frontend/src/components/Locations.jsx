@@ -2,7 +2,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.js'
 import {useEffect, useRef, useState} from 'react';
-import { checkIn, checkOut, getCheckinStatus, submitReport, getLocations, getLocationStateById, getAmenityTypes, getAmenitiesByLocation, getUserPreferences, getUserRequiredAmenities, fetchWithRefresh, authHeaders, postRecommendation } from '../api.js';
+import { checkIn, checkOut, getCheckinStatus, submitReport, getLocations, getLocationStateById, getAmenityTypes, getAmenitiesByLocation, fetchWithRefresh, authHeaders, postRecommendation } from '../api.js';
 import {useNavigate} from "react-router-dom";
 
 const BASE_URL = "http://18.191.166.24:3000";
@@ -126,10 +126,6 @@ export default function Locations() {
         locations.forEach(loc => {
             const emoji = getLocationEmoji(loc.name);
             const state = getLocationState(loc.location_id);
-            const noiseValue = state?.conflict_noise_label
-                ? state.conflict_noise_label
-                : getNoiseBadge(parseFloat(state?.avg_noise_level) || 0).label.toLowerCase();
-
             const noise = state?.conflict_noise_label
                 ? { label: state.conflict_noise_label.charAt(0).toUpperCase() + state.conflict_noise_label.slice(1),
                     color: state.conflict_noise_label === 'low' ? 'badge bg-success' :
@@ -283,7 +279,7 @@ export default function Locations() {
 
     function getLocationState(locationId) {
         const currentHour = new Date().getHours();
-        const currentWindow = currentHour >= 17 ? 'Evening' : currentHour >= 12 ? 'Afternoon' : currentHour >= 5 ? 'Morning' : 'night';;
+        const currentWindow = currentHour >= 17 ? 'Evening' : currentHour >= 12 ? 'Afternoon' : currentHour >= 5 ? 'Morning' : 'night';
         const states = locationStates.filter(s => Number(s.location_id) === Number(locationId));
 
         return states.find(s => s.time_window === currentWindow)
