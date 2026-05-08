@@ -12,8 +12,6 @@ export default function Settings({ onLogout }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const userEmail = localStorage.getItem('userEmail') || 'your account';
-
     async function handleShowStats() {
         setShowStats(true);
         setLoading(true);
